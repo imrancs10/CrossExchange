@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace CrossExchange
@@ -10,9 +12,9 @@ namespace CrossExchange
             _dbContext = dbContext;
         }
 
-        public IQueryable<Portfolio> GetAll()
+        public async Task<List<Portfolio>> GetAll(int portFolioid)
         {
-            return _dbContext.Portfolios.Include(x => x.Trade).AsQueryable();
+            return await _dbContext.Portfolios.Include(x => x.Trade).AsQueryable().Where(x => x.Id.Equals(portFolioid)).ToListAsync();
         }
     }
 }

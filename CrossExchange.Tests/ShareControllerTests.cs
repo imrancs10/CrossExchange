@@ -53,7 +53,6 @@ namespace CrossExchange.Tests
 
             // Assert
             Assert.NotNull(result);
-
             var createdResult = result as CreatedResult;
             Assert.NotNull(createdResult);
             Assert.AreEqual(201, createdResult.StatusCode);
@@ -78,14 +77,43 @@ namespace CrossExchange.Tests
         public async Task Get_ShouldReturnNotFound()
         {
             string symbol = "REL";
+            List<HourlyShareRate> list = new List<HourlyShareRate>();
             // Arrange
-
+            _shareRepositoryMock.Setup(x => x.Get(It.IsAny<string>())).ReturnsAsync(list);
             // Act
             var result = await _shareController.Get(symbol);
 
             // Assert
             var returnResult = result as NotFoundResult;
             Assert.IsInstanceOf(typeof(NotFoundResult), returnResult);
+        }
+
+        [Test]
+        public async Task Get_ShouldReturnList()
+        {
+            string symbol = "REL";
+            var list = new List<HourlyShareRate>()
+            {
+                new HourlyShareRate()
+                {
+                    Id = 1,
+                    Rate = 90,
+                    Symbol = "REL",
+                    TimeStamp = DateTime.Now
+                }
+            };
+
+            // Arrange
+            _shareRepositoryMock.Setup(x => x.Get(It.IsAny<string>())).ReturnsAsync(list);
+
+            // Act
+            var result = await _shareController.Get(symbol);
+
+            // Assert
+            Assert.NotNull(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
         }
 
         [Test]
@@ -100,6 +128,29 @@ namespace CrossExchange.Tests
             // Assert
             var returnResult = result as NotFoundResult;
             Assert.IsInstanceOf(typeof(NotFoundResult), returnResult);
+        }
+
+        [Test]
+        public async Task GetLatestPrice_ShouldReturnShareEntity()
+        {
+            string symbol = "REL";
+            HourlyShareRate share = new HourlyShareRate()
+            {
+                Id = 1,
+                Rate = 90,
+                Symbol = "REL",
+                TimeStamp = DateTime.Now
+            };
+            // Arrange
+            _shareRepositoryMock.Setup(x => x.GetLatestPrice(It.IsAny<string>())).ReturnsAsync(share);
+            // Act
+            var result = await _shareController.GetLatestPrice(symbol);
+
+            // Assert
+            Assert.NotNull(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
         }
 
     }

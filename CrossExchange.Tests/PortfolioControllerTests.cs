@@ -26,8 +26,9 @@ namespace CrossExchange.Tests
         public async Task GetPortfolioInfo_ShouldRetrunBadRequest()
         {
             int portFolioid = 1;
-
+            List<Portfolio> portfolio = new List<Portfolio>();
             // Arrange
+            _portfolioRepositoryMock.Setup(x => x.GetAll(It.IsAny<int>())).ReturnsAsync(portfolio);
 
             // Act
             var result = await _portfolioController.GetPortfolioInfo(portFolioid);
@@ -35,6 +36,31 @@ namespace CrossExchange.Tests
             // Assert
             var returnResult = result as NotFoundResult;
             Assert.IsInstanceOf(typeof(NotFoundResult), returnResult);
+        }
+
+        [Test]
+        public async Task GetPortfolioInfo_ShouldRetrunList()
+        {
+            int portFolioid = 1;
+            var list = new List<Portfolio>()
+            {
+                new Portfolio()
+                {
+                    Id = 1,
+                    Name = "Test"
+                }
+            };
+            // Arrange
+            _portfolioRepositoryMock.Setup(x => x.GetAll(It.IsAny<int>())).ReturnsAsync(list);
+
+            // Act
+            var result = await _portfolioController.GetPortfolioInfo(portFolioid);
+
+            // Assert
+            Assert.NotNull(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
         }
 
         [Test]

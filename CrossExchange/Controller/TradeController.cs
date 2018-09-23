@@ -25,9 +25,9 @@ namespace CrossExchange.Controller
 
 
         [HttpGet("{portfolioid}")]
-        public async Task<IActionResult> GetAllTradings([FromRoute]int portFolioid)
+        public async Task<IActionResult> GetAllTradings([FromRoute]int portfolioid)
         {
-            var trade = _tradeRepository.Query().Where(x => x.PortfolioId.Equals(portFolioid));
+            var trade = await _tradeRepository.GetAllTradings(portfolioid);
             if (!trade.Any())
             {
                 return BadRequest();
@@ -61,7 +61,12 @@ namespace CrossExchange.Controller
                 return BadRequest(ModelState);
             }
 
-            var latestShareInfo = await _shareRepository.Query().Where(x => x.Symbol.Equals(model.Symbol)).OrderByDescending(x => x.TimeStamp).FirstOrDefaultAsync();
+            var latestShareInfo = await _shareRepository.GetLatestPrice(model.Symbol);
+
+            if (null == latestShareInfo)
+            {
+                return BadRequest();
+            }
 
             Trade trade = new Trade
             {
